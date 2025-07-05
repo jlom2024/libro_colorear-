@@ -1,3 +1,4 @@
+// Pequeño cambio para forzar el redespliegue de Netlify
 import fetch from 'node-fetch';
 
 export async function handler(event) {
