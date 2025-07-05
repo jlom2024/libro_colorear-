@@ -1,0 +1,6 @@
+{
+  "name": "A colorear con Ivanna",
+  "description": "Dale un tema y esta app usará IA para generar un libro de colorear de 20 páginas, con una historia, ilustraciones y un PDF descargable.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
