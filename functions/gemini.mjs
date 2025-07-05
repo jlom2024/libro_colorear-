@@ -2,6 +2,7 @@
 import fetch from 'node-fetch';
 
 export async function handler(event) {
+    console.log('Iniciando ejecución de la función gemini.');
     // Asegúrate de que solo se acepten peticiones POST
     if (event.httpMethod !== 'POST') {
         return {
@@ -35,6 +36,8 @@ export async function handler(event) {
 
     // Construir la URL de la API de Gemini
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    console.log('URL de Gemini:', geminiUrl);
+    console.log('Cuerpo de la petición a Gemini:', JSON.stringify(requestBody));
 
     try {
         const response = await fetch(geminiUrl, {
@@ -46,6 +49,7 @@ export async function handler(event) {
         });
 
         const data = await response.json();
+        console.log('Respuesta de Gemini:', JSON.stringify(data));
 
         return {
             statusCode: response.status,
