@@ -84,31 +84,8 @@ export async function generateStory(theme: string): Promise<ColoringBook> {
 }
 
 export async function generateImage(prompt: string): Promise<string> {
-    const fullPrompt = `${prompt}, simple black and white line art, coloring book style for children, thick clean lines, minimal detail, no shading or gradients, pure white background.`;
-    
-    try {
-        const requestBody = {
-            text_prompts: [
-                {
-                    text: fullPrompt
-                }
-            ]
-            // Ya no necesitamos 'generationConfig' aquí, se maneja en el backend
-        };
-
-        // Usamos el modelo de Vertex AI para la generación de imágenes
-        const response = await callGeminiProxy('imagegeneration@006', requestBody);
-
-        if (response.generated_images && response.generated_images.length > 0) {
-            const base64ImageBytes: string = response.generated_images[0].image.image_bytes;
-            // La respuesta de Vertex AI es PNG
-            return `data:image/png;base64,${base64ImageBytes}`;
-        } else {
-            console.error("Respuesta inesperada de la API:", response);
-            throw new Error("No se generó ninguna imagen.");
-        }
-    } catch (error) {
-        console.error("Error generando la imagen:", error);
-        throw new Error("No se pudo generar una imagen.");
-    }
+    console.log(`Skipping image generation for prompt: "${prompt}". Returning placeholder.`);
+    // Devuelve una imagen PNG transparente de 1x1 píxel codificada en base64.
+    const placeholder = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+    return Promise.resolve(placeholder);
 }
