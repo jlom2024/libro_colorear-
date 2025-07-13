@@ -1,4 +1,4 @@
-"""import fetch from 'node-fetch';
+""""""import fetch from 'node-fetch';
 
 // Constantes para la configuración de la API
 const GOOGLE_CLOUD_PROJECT_ID = 'colorea-con-ivanna';
@@ -25,28 +25,24 @@ export async function handler(event) {
     
     let apiUrl;
     let apiRequestBody;
+    let headers = { 'Content-Type': 'application/json' };
 
-    // Decidimos qué API usar basándonos en el nombre del modelo
+    // Todos los modelos usarán el endpoint de Generative Language API por ahora
+    apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
     if (model.startsWith('gemini-')) {
-        // --- Lógica para la API de Lenguaje (Generar Historia) ---
-        apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        // Para modelos de texto, el requestBody ya está en el formato correcto
         apiRequestBody = JSON.stringify(requestBody);
-
     } else if (model.startsWith('imagegeneration')) {
-        // --- Lógica para la API de Vertex AI (Generar Imagen) ---
-        apiUrl = `https://us-central1-aiplatform.googleapis.com/v1/projects/${GOOGLE_CLOUD_PROJECT_ID}/locations/${GOOGLE_CLOUD_LOCATION}/publishers/google/models/${model}:predict`;
-        
-        // El cuerpo de la petición para Vertex AI es diferente
+        // Para generación de imágenes, transformamos text_prompts a formato contents
+        // y añadimos generationConfig para la salida de imagen
         apiRequestBody = JSON.stringify({
-            instances: [
-                { prompt: requestBody.text_prompts[0].text }
-            ],
-            parameters: {
-                mimeType: "image/png", // Solicitamos PNG para mejor calidad
-                sampleCount: 1
+            contents: [{ parts: [{ text: requestBody.text_prompts[0].text }] }],
+            generationConfig: {
+                response_mime_type: "image/jpeg", // Solicitamos JPEG
+                number_of_images: 1
             }
         });
-
     } else {
         return { statusCode: 400, body: JSON.stringify({ error: `Modelo desconocido: ${model}` }) };
     }
@@ -54,11 +50,7 @@ export async function handler(event) {
     try {
         const response = await fetch(apiUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                // La autenticación para Vertex AI es diferente, usamos el API Key en la cabecera
-                'Authorization': `Bearer ${apiKey}` 
-            },
+            headers: headers, // Usamos los encabezados definidos arriba
             body: apiRequestBody,
         });
 
@@ -72,12 +64,12 @@ export async function handler(event) {
         // Transformamos la respuesta para que el frontend la entienda
         let finalResponse;
         if (model.startsWith('imagegeneration')) {
-            // La respuesta de Vertex AI tiene un formato diferente
+            // La respuesta para imagegeneration@006 de Generative Language API
+            // es similar a los modelos de texto, pero content.parts[0].text será la imagen base64
             finalResponse = {
                 generated_images: [{
                     image: {
-                        // La imagen viene en base64 en el campo 'bytesBase64Encoded'
-                        image_bytes: data.predictions[0].bytesBase64Encoded
+                        image_bytes: data.candidates[0].content.parts[0].text // Aquí está la imagen base64
                     }
                 }]
             };
@@ -95,4 +87,5 @@ export async function handler(event) {
         return { statusCode: 500, body: JSON.stringify({ error: 'Error interno del servidor.', details: error.message }) };
     }
 }
+"""
 ""
