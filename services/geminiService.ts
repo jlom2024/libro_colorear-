@@ -84,31 +84,9 @@ export async function generateStory(theme: string): Promise<ColoringBook> {
 }
 
 export async function generateImage(prompt: string): Promise<string> {
-    const fullPrompt = `${prompt}, simple black and white line art, coloring book style for children, thick clean lines, minimal detail, no shading or gradients, pure white background.`;
-    
-    try {
-        const requestBody = {
-            text_prompts: [
-                {
-                    text: fullPrompt
-                }
-            ],
-            generationConfig: {
-                response_mime_type: 'image/jpeg',
-                number_of_images: 1
-            }
-        };
-
-        const response = await callGeminiProxy('imagen-3.0-generate-002', requestBody);
-
-        if (response.generated_images && response.generated_images.length > 0) {
-            const base64ImageBytes: string = response.generated_images[0].image.image_bytes;
-            return `data:image/jpeg;base64,${base64ImageBytes}`;
-        } else {
-            throw new Error("No image was generated.");
-        }
-    } catch (error) {
-        console.error("Error generating image:", error);
-        throw new Error("Failed to generate an image.");
-    }
+    console.log(`Skipping image generation for prompt: "${prompt}". Returning placeholder.`);
+    // Devuelve una imagen SVG de marcador de posición (un cuadrado gris) codificada en base64.
+    // Esto evita la llamada a la API que falla y permite que la app funcione.
+    const placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjY2NjY2NjIiAvPjwvc3ZnPg==';
+    return Promise.resolve(placeholder);
 }
