@@ -2,6 +2,7 @@
 import { ColoringBook } from '../types';
 
 // La URL de nuestra Netlify Function que actúa como proxy.
+// La URL de nuestra Netlify Function que actúa como proxy.
 const PROXY_URL = '/.netlify/functions/gemini';
 
 /**
@@ -67,7 +68,7 @@ export async function generateStory(theme: string): Promise<ColoringBook> {
     const response = await callGeminiProxy('gemini-1.5-flash', requestBody);
     
     // La respuesta del proxy ya debería ser el JSON parseado.
-    const coloringBook = response.candidates[0].content.parts[0].text as ColoringBook;
+    const coloringBook = JSON.parse(response.candidates[0].content.parts[0].text) as ColoringBook;
 
     if (!coloringBook.bookTitle || !Array.isArray(coloringBook.pages) || coloringBook.pages.length === 0) {
       throw new Error("Invalid JSON structure received from API.");
@@ -87,9 +88,15 @@ export async function generateImage(prompt: string): Promise<string> {
     
     try {
         const requestBody = {
-            prompt: fullPrompt,
-            number_of_images: 1,
-            response_mime_type: 'image/jpeg'
+            text_prompts: [
+                {
+                    text: fullPrompt
+                }
+            ],
+            generationConfig: {
+                response_mime_type: 'image/jpeg',
+                number_of_images: 1
+            }
         };
 
         const response = await callGeminiProxy('imagen-3.0-generate-002', requestBody);
